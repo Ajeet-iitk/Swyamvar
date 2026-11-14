@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="lang-en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Draupadi's Swayamvara — The Eye of the Fish</title>
+  <meta name="description" content="A cinematic browser game from the Mahabharata. String the divine bow, read the lie of boiling oil, and pierce the spinning golden fish's eye." />
+  <meta name="theme-color" content="#0a0611" />
+  <meta property="og:title" content="Draupadi's Swayamvara — The Eye of the Fish" />
+  <meta property="og:description" content="String the bow. Read the oil. Break the wheel. A three-trial browser game in English, Hindi and Hinglish." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+  <a class="skip-link" href="#startBtn" data-i18n="skipLink">Skip to the challenge</a>
+
+  <div id="app">
+    <canvas id="stage" aria-hidden="true"></canvas>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <header class="topbar" id="topbar">
+      <button class="brand" id="brandBtn" type="button" aria-label="Swayamvara — return to title" data-i18n-aria="ariaBrand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" role="presentation">
+            <circle cx="32" cy="32" r="29" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".65"/>
+            <circle cx="32" cy="32" r="23" fill="none" stroke="currentColor" stroke-width=".7" opacity=".4" stroke-dasharray="2 5"/>
+            <path d="M14 34c7-9 14-9 20-3 3 3 7 4 12 2-2 7-7 11-13 11-8 0-14-4-19-10Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M46 33c4-3 6-2 6-2s-1 4-4 6" fill="none" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M38 26c2-4 5-5 5-5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="36" cy="34" r="2.6" fill="currentColor"/>
+            <path d="M12 44c10 4 30 4 40-1" fill="none" stroke="currentColor" stroke-width=".8" opacity=".5"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong data-i18n="brand">Swayamvara</strong>
+          <small data-i18n="brandSub">The Eye of the Fish</small>
+        </span>
+      </button>
+
+      <div class="topbar-actions">
+        <div class="seg" role="group" aria-label="Language" id="langSeg" data-i18n-aria="ariaLang">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="hi" aria-pressed="false">हिं</button>
+          <button type="button" data-lang="hinglish" aria-pressed="false">HI-EN</button>
+        </div>
+        <button class="icon-btn" id="musicBtn" type="button" aria-label="Music and sound" data-i18n-aria="ariaMusic" aria-expanded="false" aria-controls="audioPop">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="16.5" cy="16" r="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span class="music-dot" id="musicDot" aria-hidden="true"></span>
+        </button>
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light and dark mode" data-i18n-aria="themeToDark">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.4A8.2 8.2 0 0 1 9.6 4a8.4 8.4 0 1 0 10.4 10.4Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" id="codexBtn" type="button" aria-label="Explore the craft" data-i18n-aria="ariaCodex">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v17H6.5A2.5 2.5 0 0 0 4 22V5.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v17h5.5A2.5 2.5 0 0 1 20 22V5.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="audio-pop" id="audioPop" hidden>
+        <div class="audio-pop-head">
+          <span data-i18n="audioTitle">Soundscape</span>
+          <button class="mini-x" id="audioClose" type="button" aria-label="Close sound settings" data-i18n-aria="ariaCloseAudio">×</button>
+        </div>
+        <label class="switch-row">
+          <span data-i18n="musicLabel">Music</span>
+          <input type="checkbox" id="musicToggle" checked />
+        </label>
+        <label class="slider-row">
+          <span class="sr-only" data-i18n="volumeLabel">Music volume</span>
+          <input type="range" id="volumeRange" min="0" max="100" value="46" />
+          <output id="volumeOut" for="volumeRange">46%</output>
+        </label>
+        <label class="switch-row">
+          <span data-i18n="sfxLabel">Effects</span>
+          <input type="checkbox" id="sfxToggle" checked />
+        </label>
+        <p class="audio-note" data-i18n="audioNote">Tabla, tanpura and hall noise are generated live — no audio files.</p>
+      </div>
+    </header>
+
+    <main id="playfield">
+      <div class="trial-rail" id="trialRail" hidden aria-hidden="true">
+        <span class="rail-mark is-active" data-rail="1"></span>
+        <span class="rail-line"></span>
+        <span class="rail-mark" data-rail="2"></span>
+        <span class="rail-line"></span>
+        <span class="rail-mark" data-rail="3"></span>
+      </div>
+
+      <button class="icon-btn pause-btn" id="pauseBtn" type="button" aria-label="Pause the trial" data-i18n-aria="ariaPause" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      </button>
+
+      <!-- TITLE -->
+      <section class="screen screen--title is-active" data-screen="title" aria-labelledby="titleHeading">
+        <div class="title-wrap">
+          <p class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="eyebrow">A tale from the Mahabharata</span><span class="eyebrow-line"></span></p>
+          <h1 class="wordmark" id="titleHeading">
+            <span class="wordmark-main" data-i18n="titleMain">Draupadi</span>
+            <span class="wordmark-sub" data-i18n="titleSub">Swayamvara</span>
+          </h1>
+          <p class="devanagari" data-i18n="titleDeva">द्रौपदी स्वयंवर</p>
+          <p class="tagline" data-i18n="tagline">String the bow. Read the oil. Break the wheel.</p>
+
+          <div class="diff-wrap">
+            <p class="diff-label" id="diffLabel" data-i18n="choosePath">Choose your path</p>
+            <div class="difficulty" role="group" aria-labelledby="diffLabel" id="diffGroup">
+              <button type="button" class="diff" data-diff="katha" aria-pressed="false">
+                <span class="diff-name" data-i18n="diffKatha">Katha</span>
+                <span class="diff-note" data-i18n="diffKathaNote">The story, gently told</span>
+              </button>
+              <button type="button" class="diff" data-diff="yoddha" aria-pressed="true">
+                <span class="diff-name" data-i18n="diffYoddha">Yoddha</span>
+                <span class="diff-note" data-i18n="diffYoddhaNote">A warrior's balance</span>
+              </button>
+              <button type="button" class="diff" data-diff="maharathi" aria-pressed="false">
+                <span class="diff-name" data-i18n="diffMaharathi">Maharathi</span>
+                <span class="diff-note" data-i18n="diffMaharathiNote">No mercy in the oil</span>
+              </button>
+            </div>
+            <p class="diff-desc" id="diffDesc"></p>
+          </div>
+
+          <div class="cta-row">
+            <button type="button" class="btn btn--primary btn--lg" id="startBtn">
+              <span data-i18n="enter">Enter the hall</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="btn btn--ghost" id="howBtn" data-i18n="how">How to play</button>
+          </div>
+
+          <p class="best-line" id="bestLine"></p>
+        </div>
+
+        <div class="title-foot">
+          <p class="foot-hint"><span class="pulse-dot"></span><span data-i18n="footHint">Best with sound · keyboard, mouse or touch</span></p>
+          <button type="button" class="text-link" id="exploreLink" data-i18n="explore">Explore the craft</button>
+        </div>
+      </section>
+
+      <!-- PROLOGUE -->
+      <section class="screen screen--story" data-screen="prologue" aria-labelledby="prologueTitle" aria-hidden="true">
+        <div class="story-card">
+          <div class="card-corner tl" aria-hidden="true"></div>
+          <div class="card-corner tr" aria-hidden="true"></div>
+          <div class="card-corner bl" aria-hidden="true"></div>
+          <div class="card-corner br" aria-hidden="true"></div>
+          <p class="chapter-label" id="prologueLabel"></p>
+          <blockquote class="shloka" id="prologueShloka"></blockquote>
+          <h2 id="prologueTitle"></h2>
+          <p class="story-body" id="prologueBody"></p>
+          <div class="story-nav">
+            <div class="dots" id="prologueDots" aria-hidden="true"></div>
+            <div class="story-actions">
+              <button type="button" class="text-link" id="prologueSkip" data-i18n="skip">Skip intro</button>
+              <button type="button" class="btn btn--primary" id="prologueNext">
+                <span data-i18n="continue">Continue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRIAL 1: BOW -->
+      <section class="screen screen--play screen--bow" data-screen="bow" aria-labelledby="bowHeading" aria-hidden="true">
+        <div class="play-head">
+          <p class="trial-kicker"><span class="kicker-num">I</span><span data-i18n="trial1Kicker">The Bow</span></p>
+          <h2 id="bowHeading" data-i18n="trial1Title">The Weight of Heaven</h2>
+          <p class="play-sub" id="bowPrompt" data-i18n="bowPrompt">Tap when the needle crosses the gold.</p>
+        </div>
+        <div class="play-foot">
+          <div class="meters">
+            <div class="meter">
+              <div class="meter-head"><span data-i18n="stamina">Prana</span><span id="staminaVal">100</span></div>
+              <div class="bar"><i id="staminaFill" style="width:100%"></i></div>
+            </div>
+            <div class="meter meter--gold">
+              <div class="meter-head"><span data-i18n="bend">The bend</span><span id="progressVal">0%</span></div>
+              <div class="bar"><i id="progressFill" style="width:0%"></i></div>
+            </div>
+          </div>
+          <p class="key-hint" id="bowKeyHint">
+            <span class="hint-desktop"><kbd>SPACE</kbd> <span data-i18n="orTap">or tap anywhere</span></span>
+            <span class="hint-touch" data-i18n="tapStrike">Tap anywhere to strike</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- INTERLUDE -->
+      <section class="screen screen--story" data-screen="interlude" aria-labelledby="interludeTitle" aria-hidden="true">
+        <div class="story-card story-card--interlude">
+          <div class="card-corner tl" aria-hidden="true"></div>
+          <div class="card-corner tr" aria-hidden="true"></div>
+          <div class="card-corner bl" aria-hidden="true"></div>
+          <div class="card-corner br" aria-hidden="true"></div>
+          <p class="chapter-label" id="interludeLabel"></p>
+          <blockquote class="shloka" id="interludeShloka"></blockquote>
+          <h2 id="interludeTitle"></h2>
+          <p class="story-body" id="interludeBody"></p>
+          <p class="story-body story-body--soft" id="interludeBody2"></p>
+          <div class="story-nav">
+            <div class="dots dots--static" aria-hidden="true"><span class="is-on"></span></div>
+            <div class="story-actions">
+              <button type="button" class="btn btn--primary" id="interludeNext">
+                <span data-i18n="continue">Continue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRIAL 2: POOL -->
+      <section class="screen screen--play screen--pool" data-screen="pool" aria-labelledby="poolHeading" aria-hidden="true">
+        <div class="play-head play-head--floating">
+          <p class="trial-kicker"><span class="kicker-num">II</span><span data-i18n="trial2Kicker">The Oil</span></p>
+          <h2 id="poolHeading" data-i18n="trial2Title">The Mirror That Lies</h2>
+          <p class="play-sub" id="poolPrompt" data-i18n="poolPrompt">Your sight is reflected. Move against it.</p>
+        </div>
+        <div class="play-foot play-foot--pool">
+          <div class="pool-hud">
+            <div class="meter">
+              <div class="meter-head"><span data-i18n="breath">Breath</span><span id="breathVal">100</span></div>
+              <div class="bar bar--breath"><i id="breathFill" style="width:100%"></i></div>
+            </div>
+            <div class="clarity-chip"><span class="clarity-dot"></span><span data-i18n="clarity">Clarity</span><b id="clarityVal">0%</b></div>
+          </div>
+          <button type="button" class="btn btn--steady" id="steadyBtn">
+            <span class="steady-ring" aria-hidden="true"></span>
+            <span data-i18n="holdSteady">Hold to steady</span>
+          </button>
+          <p class="key-hint">
+            <span class="hint-desktop"><kbd>SHIFT</kbd> <span data-i18n="holdKey">hold</span> · <span data-i18n="moveHint">move to aim</span></span>
+            <span class="hint-touch" data-i18n="touchPoolHint">Drag to aim · hold the button to steady</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- TRIAL 3: FISH -->
+      <section class="screen screen--play screen--fish" data-screen="fish" aria-labelledby="fishHeading" aria-hidden="true">
+        <div class="play-head play-head--floating">
+          <p class="trial-kicker"><span class="kicker-num">III</span><span data-i18n="trial3Kicker">The Eye</span></p>
+          <h2 id="fishHeading" data-i18n="trial3Title">The Wheel and the Eye</h2>
+          <p class="play-sub" id="fishPrompt" data-i18n="fishPrompt">Loose when the eye crosses your sight.</p>
+        </div>
+        <div class="play-foot play-foot--fish">
+          <div class="arrow-quiver" id="arrowRow" role="group" aria-label="Arrows remaining" data-i18n-aria="ariaArrows"></div>
+          <button type="button" class="btn btn--steady btn--loose" id="looseBtn">
+            <span class="steady-ring" aria-hidden="true"></span>
+            <span data-i18n="loose">Loose</span>
+          </button>
+          <p class="key-hint">
+            <span class="hint-desktop"><kbd>SPACE</kbd> <span data-i18n="orTapFire">or tap to loose</span></span>
+            <span class="hint-touch" data-i18n="tapLoose">Tap anywhere to loose</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- ENDING -->
+      <section class="screen screen--ending" data-screen="ending" aria-labelledby="endingTitle" aria-hidden="true">
+        <div class="ending-card">
+          <p class="chapter-label" id="endingLabel"></p>
+          <h2 id="endingTitle" data-i18n="endingTitle">The Eye of the Fish</h2>
+          <p class="ending-body" id="endingBody"></p>
+          <div class="result-grid">
+            <div class="result"><span id="statRank">—</span><small data-i18n="statRank">Rank</small></div>
+            <div class="result"><span id="statTime">—</span><small data-i18n="statTime">Time</small></div>
+            <div class="result"><span id="statArrows">—</span><small data-i18n="statArrows">Arrows used</small></div>
+            <div class="result"><span id="statBeats">—</span><small data-i18n="statBeats">Perfect beats</small></div>
+          </div>
+          <p class="ending-verse" id="endingVerse"></p>
+          <div class="cta-row">
+            <button type="button" class="btn btn--primary" id="replayBtn" data-i18n="playAgain">Play again</button>
+            <button type="button" class="btn btn--ghost" id="shareBtn" data-i18n="share">Copy result</button>
+            <button type="button" class="btn btn--ghost" id="endingExplore" data-i18n="explore">Explore the craft</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAIL LAYER -->
+      <div class="fail-layer" id="failLayer" hidden role="dialog" aria-modal="true" aria-labelledby="failTitle">
+        <div class="fail-card">
+          <span class="fail-flourish" aria-hidden="true">✦</span>
+          <h3 id="failTitle">The bow slips</h3>
+          <p id="failBody"></p>
+          <div class="cta-row">
+            <button type="button" class="btn btn--primary" id="failRetry" data-i18n="retry">Try again</button>
+            <button type="button" class="btn btn--ghost" data-action="title" data-i18n="leave">Leave the hall</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-panel">
+        <div class="modal-head">
+          <div>
+            <p class="modal-kicker" id="modalKicker"></p>
+            <h2 id="modalTitle">Explore</h2>
+          </div>
+          <button class="icon-btn" id="modalClose" type="button" aria-label="Close" data-i18n-aria="ariaClose">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="modal-tabs" id="modalTabs" hidden role="tablist">
+          <button type="button" role="tab" data-tab="craft" aria-selected="true" data-i18n="tabCraft">The craft</button>
+          <button type="button" role="tab" data-tab="tale" aria-selected="false" data-i18n="tabTale">The tale</button>
+          <button type="button" role="tab" data-tab="settings" aria-selected="false" data-i18n="tabSettings">Settings</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div class="veil" id="veil" aria-hidden="true"></div>
+  </div>
+
+  <noscript>
+    <div class="noscript">This game needs JavaScript to draw the hall, the bow and the spinning fish.</div>
+  </noscript>
+
+  <script src="js/core.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/bow.js"></script>
+  <script src="js/pool.js"></script>
+  <script src="js/fish.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

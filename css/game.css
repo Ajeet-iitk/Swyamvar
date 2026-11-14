@@ -1,0 +1,230 @@
+/* ============================================================
+   game.css — play-specific chrome and small utilities
+   ============================================================ */
+
+[hidden] {
+  display: none !important;
+}
+
+#stage.is-aiming {
+  cursor: none;
+}
+
+#stage.is-tapping {
+  cursor: pointer;
+}
+
+/* Swap keyboard hints for touch wording on coarse pointers. */
+.hint-desktop,
+.hint-touch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.hint-touch {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hint-desktop {
+    display: none;
+  }
+
+  .hint-touch {
+    display: inline-flex;
+  }
+}
+
+/* keep the hall breathable while playing */
+.screen--play .play-sub {
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="light"] .screen--bow .play-sub {
+  color: var(--text-soft);
+  text-shadow: none;
+}
+
+html[data-theme="light"] .screen--bow .trial-kicker {
+  color: var(--gold-deep);
+}
+
+.screen--fish .play-foot,
+.screen--pool .play-foot {
+  gap: 9px;
+}
+
+/* A soft floor shadow keeps the HUD legible where the crowd or the
+   dark oil sits underneath it, in both themes. */
+.screen--play .play-foot::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -22px;
+  height: calc(100% + 44px);
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(4, 2, 8, 0), rgba(4, 2, 8, 0.5) 55%, rgba(4, 2, 8, 0.74));
+}
+
+.screen--play .play-foot > * {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme="light"] .screen--play .play-foot::before {
+  background: linear-gradient(180deg, rgba(14, 8, 3, 0), rgba(14, 8, 3, 0.42) 55%, rgba(14, 8, 3, 0.68));
+}
+
+html[data-theme="light"] .screen--play .meter-head {
+  color: #cdb89c;
+}
+
+html[data-theme="light"] .screen--play .meter-head span:last-child {
+  color: #f5e9d6;
+}
+
+html[data-theme="light"] .screen--play .key-hint {
+  color: #cdb89c;
+}
+
+html[data-theme="light"] .screen--play kbd {
+  border-color: rgba(245, 233, 214, 0.28);
+  background: rgba(255, 255, 255, 0.09);
+  color: #f5e9d6;
+}
+
+html[data-theme="light"] .screen--play .bar {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+html[data-theme="light"] .screen--play .arrow-slot {
+  color: #efcb8a;
+}
+
+/* The oil and the wheel stay dark in daylight, so their headings need
+   the night palette even while the rest of the interface is light. */
+html[data-theme="light"] .screen--pool .play-head h2,
+html[data-theme="light"] .screen--fish .play-head h2 {
+  color: #f5e9d6;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.65);
+}
+
+html[data-theme="light"] .screen--pool .play-sub,
+html[data-theme="light"] .screen--fish .play-sub {
+  color: #d8c6b2;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+}
+
+.screen--fish .arrow-quiver {
+  margin-bottom: 2px;
+}
+
+/* subtle pulsing of the steady control while held */
+.btn--steady.is-held {
+  animation: steady-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes steady-pulse {
+  0%, 100% { box-shadow: 0 0 24px rgba(231, 192, 125, 0.12); }
+  50% { box-shadow: 0 0 38px rgba(231, 192, 125, 0.24); }
+}
+
+.btn--loose.is-held {
+  animation-name: steady-pulse-red;
+}
+
+@keyframes steady-pulse-red {
+  0%, 100% { box-shadow: 0 0 24px rgba(224, 96, 63, 0.12); }
+  50% { box-shadow: 0 0 38px rgba(224, 96, 63, 0.24); }
+}
+
+/* First-run nudge on the title screen */
+.best-line strong {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* the little language label sits tight on small screens */
+@media (max-width: 380px) {
+  .seg button {
+    min-width: 27px;
+    font-size: 9.5px;
+  }
+
+  .pool-hud {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .clarity-chip {
+    justify-content: center;
+  }
+}
+
+/* Landscape phones: keep the aim field clear */
+@media (max-height: 560px) and (orientation: landscape) {
+  .play-head {
+    top: calc(58px + env(safe-area-inset-top));
+  }
+
+  .play-head .play-sub {
+    display: none;
+  }
+
+  .screen--fish .play-foot,
+  .screen--pool .play-foot {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}
+
+/* When a modal or fail card is open, freeze the scene cursor */
+body.is-paused #stage {
+  cursor: default;
+}
+
+/* Hide the custom scene cursor when the page loses focus */
+body.is-blurred #stage {
+  cursor: default;
+}
+
+/* pause control, tucked below the top bar */
+.pause-btn {
+  position: fixed;
+  top: calc(66px + env(safe-area-inset-top));
+  right: clamp(12px, 3.4vw, 36px);
+  z-index: 56;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  background: rgba(10, 6, 18, 0.36);
+  backdrop-filter: blur(8px);
+  color: var(--text-soft);
+}
+
+html[data-theme="light"] .pause-btn {
+  background: rgba(255, 250, 240, 0.55);
+}
+
+.pause-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+@media (max-width: 720px) {
+  .pause-btn {
+    top: calc(58px + env(safe-area-inset-top));
+    width: 34px;
+    height: 34px;
+  }
+}
