@@ -56,6 +56,7 @@ Tanpura drone, tabla pulse, plucked notes and hall noise are synthesised live wi
 - **A wheel with a memory** — missed arrows leave ghost marks of the wheel's timing.
 - **Rhythm of the bow** — the first trial's beats follow the music rather than a metronome.
 - **Hands of every kind** — keyboard, mouse and touch, with reduced-motion and simplified-reflection options.
+- **Draupadi in 3D** — *Meet Draupadi in 3D* (title screen and ending) opens a drag-to-turn model of the bride in a crimson and gold lehenga, with maang tikka, nath, jhumkas, chuda bangles, mehendi, a long braid, a drifting dupatta and her varmala of marigold, rose and jasmine. It is a tiny software renderer written for this project: lathe surfaces and sphere chains, projected and depth-sorted on a 2D canvas, with no WebGL and no libraries. Zoom in for the face.
 - **Draw and release** — a one-thumb or one-key bowstring: hold to draw, let go to loose, with a steadiness band that rewards patience.
 - **Wind and the blinking eye** — a crosswind carries the arrow; the eye is a full-sized mark only while open.
 - **The wandering reflection** — Trial II's fish drifts and the oil strikes with a warning, so the sight is chased, not parked.
@@ -116,6 +117,7 @@ The empty `.nojekyll` file tells GitHub Pages to serve the files as-is. If you p
 │  ├─ game.js              # state machine, difficulty configs, run and rank
 │  ├─ bow.js               # Trial I
 │  ├─ pool.js              # Trial II
+│  ├─ draupadi.js          # 3D bride viewer (software renderer)
 │  ├─ fish.js              # Trial III
 │  └─ main.js              # boot, story flow, UI wiring, modals, shortcuts
 ├─ README.md

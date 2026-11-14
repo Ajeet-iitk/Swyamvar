@@ -170,6 +170,43 @@
     return '<p class="modal-lead">' + t("howIntro") + '</p><div class="flow-list">' + list + "</div>";
   }
 
+  function draupadiBody() {
+    const chips = [1, 2, 3, 4].map((n) => '<li><b>' + t("dChip" + n + "T") + "</b><span>" + t("dChip" + n + "D") + "</span></li>").join("");
+    return (
+      '<div class="dview">' +
+        '<canvas id="dCanvas" tabindex="0" role="img" aria-label="' + t("dAria") + '"></canvas>' +
+        '<p class="dhint">' + t("dHint") + "</p>" +
+        '<div class="dctl" role="group" aria-label="' + t("dControls") + '">' +
+          '<button type="button" class="dbtn" data-d="left" aria-label="' + t("dTurnL") + '">&#8592;</button>' +
+          '<button type="button" class="dbtn" data-d="right" aria-label="' + t("dTurnR") + '">&#8594;</button>' +
+          '<button type="button" class="dbtn dbtn--txt" data-d="auto" aria-pressed="true">' + t("dAuto") + "</button>" +
+          '<button type="button" class="dbtn" data-d="out" aria-label="' + t("dZoomOut") + '">&minus;</button>' +
+          '<button type="button" class="dbtn" data-d="in" aria-label="' + t("dZoomIn") + '">+</button>' +
+          '<button type="button" class="dbtn dbtn--txt" data-d="reset">' + t("dReset") + "</button>" +
+        "</div>" +
+      "</div>" +
+      '<p class="modal-lead">' + t("dLead") + "</p>" +
+      '<ul class="dchips">' + chips + "</ul>"
+    );
+  }
+
+  function mountDraupadi() {
+    const canvas = $("#dCanvas");
+    if (!canvas || !SV.draupadi) return;
+    const ctl = SV.draupadi.mount(canvas);
+    $("#modalBody").querySelectorAll("[data-d]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const a = b.dataset.d;
+        if (a === "left") ctl.turn(-1);
+        else if (a === "right") ctl.turn(1);
+        else if (a === "in") ctl.zoomBy(1.3);
+        else if (a === "out") ctl.zoomBy(1 / 1.3);
+        else if (a === "reset") ctl.reset();
+        else if (a === "auto") b.setAttribute("aria-pressed", String(ctl.toggleAuto()));
+      });
+    });
+  }
+
   function pauseBody() {
     return (
       "<p>" + t("pauseBody") + "</p>" +
@@ -183,6 +220,7 @@
 
   function modalConfig() {
     if (modal.view === "how") return { kicker: "Swayamvara", title: t("howTitle"), body: howBody(), tabs: false };
+    if (modal.view === "draupadi") return { kicker: t("dKicker"), title: t("dTitle"), body: draupadiBody(), tabs: false };
     if (modal.view === "pause") return { kicker: "Swayamvara", title: t("pauseTitle"), body: pauseBody(), tabs: false };
     if (modal.view === "settings") modal.tab = "settings";
     if (modal.tab === "settings") return { kicker: "Swayamvara", title: t("settingsTitle"), body: settingsBody(), tabs: true };
@@ -195,6 +233,7 @@
     const cfg = modalConfig();
     $("#modalKicker").textContent = cfg.kicker;
     $("#modalTitle").textContent = cfg.title;
+    if (SV.draupadi) SV.draupadi.unmount();
     $("#modalBody").innerHTML = cfg.body;
     const tabs = $("#modalTabs");
     tabs.hidden = !cfg.tabs;
@@ -202,6 +241,7 @@
       b.setAttribute("aria-selected", String(b.dataset.tab === modal.tab));
     });
     wireModalBody();
+    if (modal.view === "draupadi") mountDraupadi();
   }
 
   function wireModalBody() {
@@ -263,6 +303,7 @@
   function closeModal() {
     if (!modal.open) return;
     modal.open = false;
+    if (SV.draupadi) SV.draupadi.unmount();
     $("#modal").hidden = true;
     document.body.classList.remove("is-paused");
     if (modal.pausedGame) {
@@ -435,6 +476,8 @@
     $("#exploreLink").addEventListener("click", () => openModal("codex", "craft"));
     $("#codexBtn").addEventListener("click", () => openModal("codex", "craft"));
     $("#endingExplore").addEventListener("click", () => openModal("codex", "craft"));
+    $("#meetLink").addEventListener("click", () => openModal("draupadi"));
+    $("#endingMeet").addEventListener("click", () => openModal("draupadi"));
     $("#brandBtn").addEventListener("click", () => {
       if (modal.open) closeModal();
       if (G.screen === "title") return;
