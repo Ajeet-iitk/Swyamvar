@@ -186,11 +186,22 @@
     },
 
     afterBow() {
-      this.go("interlude");
+      this.showInterlude("karna");
     },
 
     toPool() {
       this.go("pool");
+    },
+
+    // After the oil, a remembered lesson precedes the last trial.
+    afterPool() {
+      this.showInterlude("drona");
+    },
+
+    showInterlude(kind) {
+      this.interludeKind = kind;
+      document.dispatchEvent(new CustomEvent("sv:interlude"));
+      this.go("interlude");
     },
 
     toFish() {
@@ -247,6 +258,11 @@
       this.dom.endingLabel.textContent = SV.i18n.t("endingLabel");
       this.dom.endingBody.textContent = SV.i18n.t("endingBody");
       this.dom.endingVerse.textContent = SV.i18n.t("endingVerse");
+      const epi = rankKey.replace("rank", "");
+      const epiTitle = $("#epilogueTitle");
+      const epiText = $("#epilogueText");
+      if (epiTitle) epiTitle.textContent = SV.i18n.t("epiTitle" + epi);
+      if (epiText) epiText.textContent = SV.i18n.t("epi" + epi);
       document.body.dataset.lastRank = rankKey;
       document.body.dataset.lastDiff = SV.settings.difficulty;
       document.body.dataset.lastTier = String(d.tier);
@@ -321,11 +337,19 @@
       this.dom.failTitle.textContent = SV.i18n.t(titleKey);
       this.dom.failBody.textContent = SV.i18n.t(bodyKey);
       this.dom.failRetry.textContent = SV.i18n.t("retry");
+      this.whisperN = Math.floor(Math.random() * 3) + 1;
+      this.renderWhisper();
       this.dom.fail.hidden = false;
       audio.sfx("fail");
       setTimeout(() => {
         if (!this.dom.fail.hidden) this.dom.failRetry.focus();
       }, 80);
+    },
+
+    renderWhisper() {
+      const el = $("#failWhisper");
+      if (!el || !this.failKind) return;
+      el.textContent = SV.i18n.t((this.failKind === "bow" ? "whisperBow" : "whisperFish") + (this.whisperN || 1));
     },
 
     hideFail() {
@@ -367,6 +391,7 @@
         this.dom.failTitle.textContent = SV.i18n.t(titleKey);
         this.dom.failBody.textContent = SV.i18n.t(bodyKey);
         this.dom.failRetry.textContent = SV.i18n.t("retry");
+        this.renderWhisper();
       }
     },
 
@@ -404,7 +429,7 @@
         art.fish(ctx, w * 0.885, h * 0.72, Math.min(w, h) * 0.11, t * 0.09, { alpha: 0.16, wheel: true });
         this.ambient.draw(ctx, pal);
       } else if (screen === "prologue" || screen === "interlude") {
-        art.tableau(ctx, w, h, screen === "interlude" ? 3 : this.storyIndex, t);
+        art.tableau(ctx, w, h, screen === "interlude" ? (this.interludeKind === "drona" ? 2 : 3) : this.storyIndex, t);
         this.ambient.draw(ctx, pal);
       } else if (screen === "ending") {
         art.tableau(ctx, w, h, 4, t);

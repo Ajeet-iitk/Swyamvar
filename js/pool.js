@@ -223,7 +223,7 @@
             run.pool.time = performance.now() - this.t0;
             run.pool.gasps = this.gasps;
           }
-          G().toFish();
+          G().afterPool();
         }
         return;
       }

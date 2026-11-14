@@ -16,6 +16,8 @@ Everything is drawn and sounded in the browser. There are no image files, no aud
 | **II · The Oil** | The Mirror That Lies | Your sight is reflected in the oil, so aim against the mirror. Rest the reticle on the reflected fish's eye and **hold** (`Shift`, the on-screen button, or press and hold anywhere on the scene) until clarity fills. Breathing out too long makes the oil surge. |
 | **III · The Eye** | The Wheel and the Eye | Track the spinning fish and loose an arrow when its eye crosses your reticle. Five arrows. Each miss leaves a ghost mark of the wheel's timing, and the wheel slows briefly so the next shot can be read. |
 
+Between the trials, two short interludes carry the story: Karna's rejection (after the bow) and the teacher's question (after the oil).
+
 A full run is short — roughly one to three minutes depending on difficulty and how calmly you shoot.
 
 ## Difficulty
@@ -54,6 +56,9 @@ Tanpura drone, tabla pulse, plucked notes and hall noise are synthesised live wi
 - **A wheel with a memory** — missed arrows leave ghost marks of the wheel's timing.
 - **Rhythm of the bow** — the first trial's beats follow the music rather than a metronome.
 - **Hands of every kind** — keyboard, mouse and touch, with reduced-motion and simplified-reflection options.
+- **The teacher's question** — before Trial III a remembered lesson (the teacher, the wooden bird) asks *"What do you see?"* Only the answer "Only the eye" lets you continue; wrong answers get a gentle correction.
+- **Epilogues by rank** — four different closing passages, from the patient *Sthira* to the near-mythic *Atiratha*.
+- **Whispers of the hall** — when the bow slips or the last arrow falls, a short line of counsel appears, with hints woven into the poetry.
 - **Light and dark** — the entire hall is repainted rather than merely inverted.
 - **The myth, held with care** — Karna's rejection is framed as the cruelty it was, while giving him the last of his dignity.
 

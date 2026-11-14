@@ -55,14 +55,52 @@
     }
   }
 
+  // The oracle: a remembered lesson that asks "what do you see?" before the last trial.
+  const oracle = { answered: false, last: 0 };
+
   function renderInterlude() {
     const label = $("#interludeLabel");
     if (!label) return;
-    label.textContent = t("interludeLabel");
-    $("#interludeShloka").textContent = t("interludeShloka");
-    $("#interludeTitle").textContent = t("interludeTitle");
-    $("#interludeBody").textContent = t("interludeBody1");
-    $("#interludeBody2").textContent = t("interludeBody2");
+    const drona = G.interludeKind === "drona";
+    const pre = drona ? "drona" : "interlude";
+    label.textContent = t(pre + "Label");
+    $("#interludeShloka").textContent = t(pre + "Shloka");
+    $("#interludeTitle").textContent = t(pre + "Title");
+    $("#interludeBody").textContent = t(pre + "Body1");
+    $("#interludeBody2").textContent = drona ? (oracle.answered ? t("dronaBody2") : "") : t("interludeBody2");
+
+    const box = $("#oracle");
+    const next = $("#interludeNext");
+    box.hidden = !drona;
+    next.disabled = drona && !oracle.answered;
+    next.classList.toggle("is-locked", next.disabled);
+    if (!drona) return;
+
+    $("#oracleQ").textContent = t("oracleQ");
+    const opts = $("#oracleOpts");
+    opts.innerHTML = [1, 2, 3]
+      .map((n) => '<button type="button" class="oracle-opt" data-n="' + n + '">' + t("oracleA" + n) + "</button>")
+      .join("");
+    const reply = $("#oracleReply");
+    reply.textContent = oracle.last ? t("oracleR" + oracle.last) : "";
+    reply.classList.toggle("is-right", oracle.last === 3);
+    opts.querySelectorAll(".oracle-opt").forEach((b) => {
+      const n = Number(b.dataset.n);
+      if (oracle.last === n) b.classList.add(n === 3 ? "is-right" : "is-wrong");
+      b.addEventListener("click", () => answerOracle(n));
+    });
+  }
+
+  function answerOracle(n) {
+    if (oracle.answered) return;
+    oracle.last = n;
+    audio.sfx(n === 3 ? "garland" : "pluck");
+    if (n === 3) oracle.answered = true;
+    renderInterlude();
+    if (n === 3) {
+      const next = $("#interludeNext");
+      if (next) next.focus({ preventScroll: true });
+    }
   }
 
   function startTrials() {
@@ -76,7 +114,7 @@
 
   function craftBody() {
     let grid = "";
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 13; i++) {
       if (!SV.i18n.dicts.en["craft" + i + "Title"]) continue;
       grid += '<article class="feature"><h4>' + t("craft" + i + "Title") + "</h4><p>" + t("craft" + i + "Desc") + "</p></article>";
     }
@@ -422,9 +460,15 @@
       }
     });
     $("#prologueSkip").addEventListener("click", startTrials);
+    document.addEventListener("sv:interlude", () => {
+      oracle.answered = false;
+      oracle.last = 0;
+      renderInterlude();
+    });
     $("#interludeNext").addEventListener("click", () => {
       audio.sfx("conch");
-      G.toPool();
+      if (G.interludeKind === "drona") G.toFish();
+      else G.toPool();
     });
 
     // ending

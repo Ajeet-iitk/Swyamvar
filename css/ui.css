@@ -1013,6 +1013,149 @@ html[data-theme="light"] .result {
   margin-bottom: 8px;
 }
 
+.fail-card p.fail-whisper {
+  margin: 14px auto 18px;
+  padding-top: 14px;
+  max-width: 34ch;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--gold);
+}
+
+/* ---------- the oracle (teacher's question) ---------- */
+
+.oracle {
+  margin-top: 22px;
+  padding: 18px 18px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(231, 192, 125, 0.05);
+}
+
+.oracle-q {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+
+.oracle-opts {
+  display: grid;
+  gap: 9px;
+}
+
+.oracle-opt {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+html[data-theme="light"] .oracle-opt {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.oracle-opt:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateX(3px);
+}
+
+.oracle-opt.is-wrong {
+  border-color: var(--accent);
+  color: var(--muted);
+  animation: oracle-shake 0.4s var(--ease);
+}
+
+.oracle-opt.is-right {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(231, 192, 125, 0.14);
+  box-shadow: 0 0 22px rgba(231, 192, 125, 0.22);
+}
+
+.oracle-reply {
+  min-height: 1.6em;
+  margin-top: 14px;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.oracle-reply.is-right {
+  color: var(--gold);
+}
+
+.btn.is-locked,
+.btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+@keyframes oracle-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ---------- ending epilogue ---------- */
+
+.epilogue {
+  position: relative;
+  max-width: 52ch;
+  margin: 26px auto 0;
+  padding: 20px 22px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: rgba(231, 192, 125, 0.06);
+  animation: card-in 1s 0.5s var(--ease-out) both;
+}
+
+.epilogue-mark {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 10px;
+  background: var(--panel-solid);
+  color: var(--gold);
+  font-size: 14px;
+}
+
+.epilogue-title {
+  font-family: var(--font-caps);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.epilogue-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 2vw, 1.18rem);
+  line-height: 1.65;
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oracle-opt.is-wrong,
+  .epilogue {
+    animation: none !important;
+  }
+}
+
 /* ---------- toast ---------- */
 
 .toast {

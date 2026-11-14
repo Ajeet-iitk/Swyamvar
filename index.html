@@ -206,6 +206,11 @@
           <h2 id="interludeTitle"></h2>
           <p class="story-body" id="interludeBody"></p>
           <p class="story-body story-body--soft" id="interludeBody2"></p>
+          <div class="oracle" id="oracle" hidden>
+            <p class="oracle-q" id="oracleQ"></p>
+            <div class="oracle-opts" id="oracleOpts" role="group" aria-labelledby="oracleQ"></div>
+            <p class="oracle-reply" id="oracleReply" role="status" aria-live="polite"></p>
+          </div>
           <div class="story-nav">
             <div class="dots dots--static" aria-hidden="true"><span class="is-on"></span></div>
             <div class="story-actions">
@@ -269,6 +274,11 @@
           <p class="chapter-label" id="endingLabel"></p>
           <h2 id="endingTitle" data-i18n="endingTitle">The Eye of the Fish</h2>
           <p class="ending-body" id="endingBody"></p>
+          <div class="epilogue" id="epilogue">
+            <span class="epilogue-mark" aria-hidden="true">✦</span>
+            <p class="epilogue-title" id="epilogueTitle"></p>
+            <p class="epilogue-text" id="epilogueText"></p>
+          </div>
           <div class="result-grid">
             <div class="result"><span id="statRank">—</span><small data-i18n="statRank">Rank</small></div>
             <div class="result"><span id="statTime">—</span><small data-i18n="statTime">Time</small></div>
@@ -290,6 +300,7 @@
           <span class="fail-flourish" aria-hidden="true">✦</span>
           <h3 id="failTitle">The bow slips</h3>
           <p id="failBody"></p>
+          <p class="fail-whisper" id="failWhisper"></p>
           <div class="cta-row">
             <button type="button" class="btn btn--primary" id="failRetry" data-i18n="retry">Try again</button>
             <button type="button" class="btn btn--ghost" data-action="title" data-i18n="leave">Leave the hall</button>
