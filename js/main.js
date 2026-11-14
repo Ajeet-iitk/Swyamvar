@@ -114,7 +114,7 @@
 
   function craftBody() {
     let grid = "";
-    for (let i = 1; i <= 13; i++) {
+    for (let i = 1; i <= 15; i++) {
       if (!SV.i18n.dicts.en["craft" + i + "Title"]) continue;
       grid += '<article class="feature"><h4>' + t("craft" + i + "Title") + "</h4><p>" + t("craft" + i + "Desc") + "</p></article>";
     }
@@ -282,6 +282,7 @@
       G.scenes.pool.pointerHold = false;
       G.scenes.pool.holding = false;
     }
+    if (G.scenes.fish && G.scenes.fish.cancelDraw) G.scenes.fish.cancelDraw();
     const sb = $("#steadyBtn");
     if (sb) sb.classList.remove("is-held");
     const lb = $("#looseBtn");

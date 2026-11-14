@@ -13,8 +13,8 @@ Everything is drawn and sounded in the browser. There are no image files, no aud
 | Trial | Scene | What you do |
 | --- | --- | --- |
 | **I · The Bow** | The Weight of Heaven | Tap, click or press `Space` when the needle crosses the gold arc. Four, five and three clean beats lift, bend and string the bow. Misses and time drain *prana*. |
-| **II · The Oil** | The Mirror That Lies | Your sight is reflected in the oil, so aim against the mirror. Rest the reticle on the reflected fish's eye and **hold** (`Shift`, the on-screen button, or press and hold anywhere on the scene) until clarity fills. Breathing out too long makes the oil surge. |
-| **III · The Eye** | The Wheel and the Eye | Track the spinning fish and loose an arrow when its eye crosses your reticle. Five arrows. Each miss leaves a ghost mark of the wheel's timing, and the wheel slows briefly so the next shot can be read. |
+| **II · The Oil** | The Mirror That Lies | Your sight is reflected in the oil, so aim against the mirror — and the reflected fish **wanders**, so you must follow it. Rest the reticle on its eye and **hold** (`Shift`, the on-screen button, or press and hold anywhere) until clarity fills. Red rings warn where the oil is about to be struck: brace in time. Katha asks for one seal to break, Yoddha two, Maharathi three; after each the oil surges and the eye slips away. |
+| **III · The Eye** | The Wheel and the Eye | **Hold to draw** the string (`Space`, mouse button, the on-screen button, or press anywhere) and **release** to loose. Release inside the teal band: too soon and your hands shake, too late and the string trembles. A **crosswind** carries the arrow — read the gauge and aim into the gust. The fish's eye only opens on the beat (a closed eye is a smaller mark), and on harder paths the wheel turns about and reverses. Five arrows; each miss leaves a ghost of where the eye was and a gold cross where your arrow landed. |
 
 Between the trials, two short interludes carry the story: Karna's rejection (after the bow) and the teacher's question (after the oil).
 
@@ -56,6 +56,9 @@ Tanpura drone, tabla pulse, plucked notes and hall noise are synthesised live wi
 - **A wheel with a memory** — missed arrows leave ghost marks of the wheel's timing.
 - **Rhythm of the bow** — the first trial's beats follow the music rather than a metronome.
 - **Hands of every kind** — keyboard, mouse and touch, with reduced-motion and simplified-reflection options.
+- **Draw and release** — a one-thumb or one-key bowstring: hold to draw, let go to loose, with a steadiness band that rewards patience.
+- **Wind and the blinking eye** — a crosswind carries the arrow; the eye is a full-sized mark only while open.
+- **The wandering reflection** — Trial II's fish drifts and the oil strikes with a warning, so the sight is chased, not parked.
 - **The teacher's question** — before Trial III a remembered lesson (the teacher, the wooden bird) asks *"What do you see?"* Only the answer "Only the eye" lets you continue; wrong answers get a gentle correction.
 - **Epilogues by rank** — four different closing passages, from the patient *Sthira* to the near-mythic *Atiratha*.
 - **Whispers of the hall** — when the bow slips or the last arrow falls, a short line of counsel appears, with hints woven into the poetry.

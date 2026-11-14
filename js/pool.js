@@ -146,6 +146,10 @@
       this._left = false;
       this._hinted = false;
       this.ripples = [];
+      this.drops = [];
+      this.dropT = 3.2;
+      this.lock = 0;
+      this.surge = 0;
       this.rippleT = 2.2;
       this.time = 0;
       this.done = false;
@@ -180,8 +184,11 @@
       const cy = h * 0.44;
       const angle = Math.sin(this.time * 0.17) * 0.05 - 0.02;
       const eyeOff = SV.reflect.eyeOffset(size, angle);
-      const swayX = Math.sin(this.time * 0.31) * 4;
-      const swayY = Math.cos(this.time * 0.24) * 3;
+      // The reflected fish wanders: the sight must follow it, not wait for it.
+      const wa = Math.min(w, h) * 0.085 * this.d.wander;
+      const wt = this.time;
+      const swayX = Math.sin(wt * 0.31) * 4 + (Math.sin(wt * 0.52) * 0.7 + Math.sin(wt * 1.13 + 1) * 0.3) * wa;
+      const swayY = Math.cos(wt * 0.24) * 3 + (Math.cos(wt * 0.41 + 0.6) * 0.6 + Math.sin(wt * 0.93) * 0.25) * wa * 0.55;
       const tol = U.clamp(size * 0.135, 26, 66) * this.d.tol;
       return {
         size, cx, cy, angle,
@@ -288,6 +295,32 @@
         this.reticle.y = U.damp(this.reticle.y, targetY, 7.5, dt);
       }
 
+      // drops: a warning ring shows where the oil will be struck next
+      this.surge = Math.max(0, this.surge - dt);
+      this.dropT -= dt;
+      if (this.dropT <= 0) {
+        this.dropT = d.dropEvery * U.rand(0.8, 1.2);
+        const a = U.rand(0, 6.283);
+        const rr = U.rand(40, 110);
+        this.drops.push({
+          x: U.clamp(this.reticle.x + Math.cos(a) * rr, 30, w - 30),
+          y: U.clamp(this.reticle.y + Math.sin(a) * rr, 30, h - 30),
+          t: 0,
+          warn: d.warn,
+        });
+        audio.sfx("bubble");
+      }
+      for (let i = this.drops.length - 1; i >= 0; i--) {
+        const dr = this.drops[i];
+        dr.t += dt;
+        if (dr.t >= dr.warn) {
+          this.drops.splice(i, 1);
+          this.ripples.push({ x: dr.x, y: dr.y, r: 4, max: Math.min(w, h) * 0.3, life: 2.4, maxLife: 2.4, strength: 1.5 });
+          audio.sfx("thud");
+          G().shake.add(2);
+        }
+      }
+
       // ripples
       this.rippleT -= dt;
       if (this.rippleT <= 0) {
@@ -331,7 +364,11 @@
         this._hinted = true;
         G().toast(t("poolTeaching"));
       }
-      if (this.clarity >= 1) this.complete();
+      if (this.clarity >= 1) {
+        this.lock += 1;
+        if (this.lock >= d.locks) this.complete();
+        else this.nextLock();
+      }
 
       this.syncHUD(false);
     },
@@ -349,6 +386,22 @@
         this.lastGaspToast = performance.now();
         G().toast(t("poolGasp"));
       }
+    },
+
+    // A seal breaks, but the oil is not done with you: it surges and the eye slips away.
+    nextLock() {
+      this.clarity = 0;
+      this.surge = 1.2;
+      this.wobble = 1;
+      this.breath = Math.min(100, this.breath + 35);
+      this.time += 2.4;
+      this.push.x += U.rand(-26, 26);
+      this.push.y += U.rand(-26, 26);
+      this.spawnRipple(false);
+      audio.sfx("success");
+      audio.sfx("bubble");
+      G().shake.add(5);
+      G().toast(t("poolSurge"));
     },
 
     complete() {
@@ -375,9 +428,11 @@
         el.breathVal.textContent = String(this._lastBreath);
       }
       const c = Math.round(this.clarity * 100);
-      if (force || this._lastClarity !== c) {
-        this._lastClarity = c;
-        el.clarity.textContent = c + "%";
+      const total = this.d.locks;
+      const key = c + ":" + this.lock;
+      if (force || this._lastClarity !== key) {
+        this._lastClarity = key;
+        el.clarity.textContent = c + "%" + (total > 1 ? " · " + Math.min(this.lock + 1, total) + "/" + total : "");
       }
     },
 
@@ -463,6 +518,22 @@
         ctx.setLineDash([]);
         ctx.restore();
         SV.fx.glow(ctx, L.eye.x, L.eye.y, L.tol * 1.4, pal.teal, 0.06 + this.clarity * 0.16);
+      }
+
+      // incoming drops (telegraphed)
+      for (let i = 0; i < this.drops.length; i++) {
+        const dr = this.drops[i];
+        const k = U.clamp(dr.t / dr.warn, 0, 1);
+        ctx.save();
+        ctx.strokeStyle = rgba(pal.accent, 0.35 + k * 0.5);
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([4, 5]);
+        ctx.beginPath();
+        ctx.arc(dr.x, dr.y, 8 + (1 - k) * 46, 0, 6.283);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        SV.fx.glow(ctx, dr.x, dr.y, 18 + k * 10, pal.accent, 0.12 + k * 0.28);
+        ctx.restore();
       }
 
       // ripples

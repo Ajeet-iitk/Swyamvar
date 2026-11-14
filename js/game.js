@@ -12,20 +12,20 @@
   const DIFF = {
     katha: {
       bow: { speed: 1.08, zone: 0.74, drain: 1.55, miss: 6, start: 106, perfect: 0.32 },
-      pool: { drift: 0.55, tol: 1.5, holdDrain: 13, regen: 22, clarity: 1.9, rippleEvery: 5.2, wobble: 0.55 },
-      fish: { period: 9.8, hit: 1.42, drift: 0.5, assistStep: 0.12 },
+      pool: { drift: 0.55, tol: 1.5, holdDrain: 13, regen: 22, clarity: 1.9, rippleEvery: 5.2, wobble: 0.55, wander: 0.5, locks: 1, dropEvery: 6.5, warn: 1.3 },
+      fish: { period: 9.8, hit: 1.42, drift: 0.5, assistStep: 0.12, draw: 1.7, sweet: [0.45, 1.05], wind: 0.3, closedK: 0.75, openFrac: 0.8, predict: 0.9, reverse: 0 },
       tier: 0,
     },
     yoddha: {
       bow: { speed: 1.52, zone: 0.46, drain: 2.65, miss: 9, start: 100, perfect: 0.26 },
-      pool: { drift: 1, tol: 1, holdDrain: 20, regen: 16, clarity: 2.35, rippleEvery: 3.9, wobble: 1 },
-      fish: { period: 6.7, hit: 1, drift: 0.8, assistStep: 0.08 },
+      pool: { drift: 1, tol: 1, holdDrain: 20, regen: 16, clarity: 2.35, rippleEvery: 3.9, wobble: 1, wander: 1, locks: 2, dropEvery: 4.2, warn: 1.0 },
+      fish: { period: 6.7, hit: 1, drift: 0.8, assistStep: 0.08, draw: 1.3, sweet: [0.6, 0.95], wind: 0.8, closedK: 0.5, openFrac: 0.55, predict: 0.45, reverse: 1 },
       tier: 1,
     },
     maharathi: {
       bow: { speed: 2.0, zone: 0.32, drain: 3.5, miss: 12, start: 96, perfect: 0.22 },
-      pool: { drift: 1.45, tol: 0.78, holdDrain: 26, regen: 12, clarity: 2.9, rippleEvery: 2.9, wobble: 1.4 },
-      fish: { period: 4.9, hit: 0.76, drift: 1.15, assistStep: 0.05 },
+      pool: { drift: 1.45, tol: 0.78, holdDrain: 26, regen: 12, clarity: 2.9, rippleEvery: 2.9, wobble: 1.4, wander: 1.5, locks: 3, dropEvery: 2.8, warn: 0.75 },
+      fish: { period: 4.9, hit: 0.76, drift: 1.15, assistStep: 0.05, draw: 1.0, sweet: [0.68, 0.9], wind: 1.4, closedK: 0.3, openFrac: 0.4, predict: 0, reverse: 1 },
       tier: 2,
     },
   };

@@ -25,9 +25,16 @@
         e.preventDefault();
         if (G().screen === "fish") {
           audio.unlock();
-          fish.fire();
+          fish.startDraw("btn");
+          el.loose.classList.add("is-held");
         }
       });
+      const rel = () => {
+        el.loose.classList.remove("is-held");
+        if (fish.drawing && fish.drawSource === "btn") fish.release();
+      };
+      window.addEventListener("pointerup", rel);
+      window.addEventListener("pointercancel", rel);
     }
   }
 
@@ -62,6 +69,19 @@
       this.t0 = performance.now();
       this.missToast = false;
       this.pointerDown = null;
+      this.drawing = false;
+      this.draw = 0;
+      this.drawSource = null;
+      this.sway = { x: 0, y: 0 };
+      this.dir = 1;
+      this.dirTarget = 1;
+      this.dirT = U.rand(5, 8);
+      this.windPhase = U.rand(0, 20);
+      this.wind = 0;
+      this.blinkT = 0;
+      this.open = 1;
+      this.heartT = 0;
+      this.landed = null;
       this.finishedEye = null;
       this._left = false;
       this.buildArrows();
@@ -70,7 +90,9 @@
       G().paused = false;
     },
 
-    exit() {},
+    exit() {
+      this.cancelDraw();
+    },
 
     buildArrows() {
       cache();
@@ -165,10 +187,46 @@
       }
       if (this.failed) return;
 
-      // spin
-      const speed = this.baseSpeed * this.assist * (1 + Math.sin(time * 0.8) * 0.16);
-      this.angle += speed * dt;
-      if (this.angle > Math.PI * 2) this.angle -= Math.PI * 2;
+      // spin: on harder paths the wheel turns about and runs the other way
+      if (this.d.reverse) {
+        this.dirT -= dt;
+        if (this.dirT <= 0) {
+          this.dirT = U.rand(5.5, 9) / (SV.settings.difficulty === "maharathi" ? 1.4 : 1);
+          this.dirTarget = -this.dirTarget;
+          audio.sfx("whoosh");
+        }
+        this.dir = U.damp(this.dir, this.dirTarget, 1.3, dt);
+      }
+      const speed = this.baseSpeed * this.assist * (1 + Math.sin(time * 0.8) * 0.16) * this.dir;
+      this.angle = (this.angle + speed * dt + Math.PI * 2) % (Math.PI * 2);
+
+      // the eye opens and closes; only an open eye is a full-sized mark
+      this.blinkT += dt;
+      const cyc = 2.1;
+      const ph = (this.blinkT % cyc) / cyc;
+      this.open = U.damp(this.open, ph < this.d.openFrac ? 1 : 0, 14, dt);
+
+      // gusts
+      this.windPhase += dt;
+      const wp = this.windPhase;
+      this.wind = ((Math.sin(wp * 0.23) + 0.6 * Math.sin(wp * 0.61 + 1.3)) / 1.6) * this.d.wind;
+
+      // drawing the string
+      if (this.drawing) {
+        this.draw += dt / this.d.draw;
+        this.heartT -= dt;
+        if (this.heartT <= 0 && this.draw > this.d.sweet[1]) {
+          this.heartT = 0.45;
+          audio.sfx("heartbeat");
+        }
+        if (this.draw >= 1.5) this.release();
+      }
+      const st = this.steadiness();
+      const swayAmp = Math.min(w, h) * (0.004 + (1 - st) * 0.052);
+      const sx = Math.sin(time * 7.3) * 0.6 + Math.sin(time * 12.1 + 1) * 0.4;
+      const sy = Math.cos(time * 6.1) * 0.6 + Math.sin(time * 10.7) * 0.4;
+      this.sway.x = U.damp(this.sway.x, sx * swayAmp, 18, dt);
+      this.sway.y = U.damp(this.sway.y, sy * swayAmp, 18, dt);
 
       // ghosts fade
       for (let i = this.ghosts.length - 1; i >= 0; i--) {
@@ -203,20 +261,78 @@
       this.reticle.y = U.damp(this.reticle.y, targetY, 9, dt);
     },
 
+    /* ---- draw and release: hold to draw the string, let go to loose ---- */
+
+    startDraw(source) {
+      if (G().paused || this.done || this.failed || this.cooldown > 0 || this.shot || this.drawing) return;
+      this.drawing = true;
+      this.drawSource = source || "key";
+      this.draw = 0;
+      audio.sfx("creak");
+    },
+
+    cancelDraw() {
+      this.drawing = false;
+      this.draw = 0;
+      this.drawSource = null;
+      if (el.loose) el.loose.classList.remove("is-held");
+    },
+
+    release() {
+      if (!this.drawing) return;
+      this.drawing = false;
+      this.drawSource = null;
+      if (el.loose) el.loose.classList.remove("is-held");
+      this.fire();
+      this.draw = 0;
+    },
+
+    // Where the sight really is: the reticle plus the tremble of the arms.
+    aimPoint() {
+      return { x: this.reticle.x + this.sway.x, y: this.reticle.y + this.sway.y };
+    },
+
+    // Steadiness 0..1: poor when loose, best inside the sweet band, shaky when over-drawn.
+    steadiness() {
+      const sw = this.d.sweet;
+      const k = this.draw;
+      if (!this.drawing) return 0.15;
+      if (k < sw[0]) return 0.15 + 0.85 * (k / sw[0]);
+      if (k <= sw[1]) return 1;
+      return Math.max(0, 1 - (k - sw[1]) * 3.2);
+    },
+
+    // Crosswind carried by the arrow, softened by a strong draw.
+    windPx(w, h) {
+      return this.wind * Math.min(w, h) * 0.085 * (1 - 0.5 * Math.min(1, this.draw));
+    },
+
+    landPoint(w, h) {
+      const a = this.aimPoint();
+      return { x: a.x + this.windPx(w, h), y: a.y };
+    },
+
+    hitRadius(L) {
+      const k = this.d.closedK;
+      return L.hitR * (k + (1 - k) * this.open);
+    },
+
     fire() {
       if (G().paused || this.done || this.failed || this.cooldown > 0 || this.shot) return;
       const w = SV.stage.w, h = SV.stage.h;
       const L = this.layout(w, h);
       const eye = this.eyeNow(L);
-      const dist = U.dist(this.reticle.x, this.reticle.y, eye.x, eye.y);
-      const hit = dist <= L.hitR;
+      const land = this.landPoint(w, h);
+      const dist = U.dist(land.x, land.y, eye.x, eye.y);
+      const hit = dist <= this.hitRadius(L);
+      this.landed = { x: land.x, y: land.y };
       this.cooldown = 0.4;
       this.shots += 1;
       audio.sfx("whoosh");
       audio.sfx("twang");
       this.shot = {
-        from: { x: this.reticle.x, y: h + 30 },
-        to: { x: this.reticle.x, y: this.reticle.y },
+        from: { x: this.aimPoint().x, y: h + 30 },
+        to: { x: land.x, y: land.y },
         t: 0,
         hit,
       };
@@ -239,7 +355,7 @@
       this.arrowsLeft -= 1;
       this.arrowsUsed += 1;
       this.misses += 1;
-      this.ghosts.push({ x: eye.x, y: eye.y, life: 4.2, maxLife: 4.2, angle: this.angle });
+      this.ghosts.push({ x: eye.x, y: eye.y, life: 4.2, maxLife: 4.2, angle: this.angle, land: this.landed });
       this.assist = Math.max(0.55, this.assist - this.d.assistStep);
       this.flashRed = 1;
       G().shake.add(5);
@@ -251,6 +367,7 @@
       }
       if (this.arrowsLeft <= 0) {
         this.failed = true;
+        this.cancelDraw();
         setTimeout(() => {
           if (G().screen === "fish") G().showFail("fish");
         }, 750);
@@ -258,31 +375,95 @@
     },
 
     onDown(x, y) {
-      this.pointerDown = { x, y, t: performance.now() };
+      this.pointer.x = x;
+      this.pointer.y = y;
+      this.startDraw("pointer");
     },
 
     onMove(x, y) {
       this.pointer.x = x;
       this.pointer.y = y;
-      this.pointerDown = null;
     },
 
-    onUp(x, y) {
-      if (!this.pointerDown) return;
-      const d = this.pointerDown;
-      this.pointerDown = null;
-      if (performance.now() - d.t < 450 && U.dist(d.x, d.y, x, y) < 16) {
-        this.fire();
-      }
+    onUp() {
+      if (this.drawing && this.drawSource === "pointer") this.release();
     },
 
     onKey(code, e) {
       if (code === "Space" || code === "Enter") {
         if (e && e.preventDefault) e.preventDefault();
-        this.fire();
+        this.startDraw("key");
       }
     },
-    onKeyUp() {},
+    onKeyUp(code) {
+      if ((code === "Space" || code === "Enter") && this.drawing && this.drawSource === "key") this.release();
+    },
+
+    drawRing(ctx, x, y, r, pal) {
+      const sw = this.d.sweet;
+      const A0 = -Math.PI / 2;
+      const span = Math.PI * 2 / 1.5; // full circle == draw 1.5 (the string slips)
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "rgba(255,255,255,0.12)";
+      ctx.beginPath();
+      ctx.arc(x, y, r, A0, A0 + Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = rgba(pal.teal, 0.55);
+      ctx.beginPath();
+      ctx.arc(x, y, r, A0 + sw[0] * span, A0 + sw[1] * span);
+      ctx.stroke();
+      const over = this.draw > sw[1];
+      ctx.strokeStyle = over ? pal.accent : this.draw >= sw[0] ? pal.teal : pal.goldHi;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y, r, A0, A0 + Math.min(1.5, this.draw) * span);
+      ctx.stroke();
+      ctx.restore();
+    },
+
+    drawWind(ctx, w, h, time, pal) {
+      if (this.done || this.failed || !this.d.wind) return;
+      const y = Math.min(h * 0.3, 214);
+      const cx = w / 2;
+      const half = 64;
+      ctx.save();
+      ctx.globalAlpha = 0.8;
+      ctx.strokeStyle = rgba(pal.gold, 0.35);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx - half, y);
+      ctx.lineTo(cx + half, y);
+      ctx.moveTo(cx, y - 4);
+      ctx.lineTo(cx, y + 4);
+      ctx.stroke();
+      // streaming motes show the direction and force
+      const speed = this.wind * 40;
+      for (let i = 0; i < 6; i++) {
+        const u = (((i / 6 + time * speed * 0.004) % 1) + 1) % 1;
+        const px = cx - half + u * half * 2;
+        ctx.fillStyle = rgba(pal.goldHi, 0.25 + Math.min(0.6, Math.abs(this.wind) * 0.5));
+        ctx.beginPath();
+        ctx.arc(px, y + Math.sin(i * 2 + time) * 3, 1.6, 0, 6.283);
+        ctx.fill();
+      }
+      // needle
+      const nx = cx + U.clamp(this.wind / 1.4, -1, 1) * half;
+      ctx.fillStyle = pal.goldHi;
+      ctx.beginPath();
+      ctx.moveTo(nx, y - 7);
+      ctx.lineTo(nx + 4, y);
+      ctx.lineTo(nx, y + 7);
+      ctx.lineTo(nx - 4, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.font = '500 10px "Cinzel", Georgia, serif';
+      ctx.textAlign = "center";
+      ctx.fillStyle = rgba(pal.gold, 0.7);
+      ctx.fillText(t("windLabel").toUpperCase(), cx, y - 14);
+      ctx.restore();
+    },
 
     render(ctx, w, h, time) {
       const pal = SV.colors();
@@ -352,22 +533,34 @@
         ctx.moveTo(gh.x, gh.y - 12);
         ctx.lineTo(gh.x, gh.y + 12);
         ctx.stroke();
+        if (gh.land) {
+          ctx.strokeStyle = pal.goldHi;
+          ctx.beginPath();
+          ctx.moveTo(gh.land.x - 6, gh.land.y - 6);
+          ctx.lineTo(gh.land.x + 6, gh.land.y + 6);
+          ctx.moveTo(gh.land.x + 6, gh.land.y - 6);
+          ctx.lineTo(gh.land.x - 6, gh.land.y + 6);
+          ctx.stroke();
+        }
         ctx.restore();
       }
 
       // target window around the eye
       if (!this.done && !this.failed) {
-        const near = U.dist(this.reticle.x, this.reticle.y, eye.x, eye.y) < L.hitR;
+        const hr = this.hitRadius(L);
+        const lp = this.landPoint(w, h);
+        const near = U.dist(lp.x, lp.y, eye.x, eye.y) < hr;
         ctx.save();
-        ctx.strokeStyle = rgba(near ? pal.teal : pal.gold, near ? 0.5 : 0.16);
+        ctx.strokeStyle = rgba(near ? pal.teal : pal.gold, (near ? 0.5 : 0.16) + this.open * 0.2);
         ctx.lineWidth = near ? 1.6 : 1;
         ctx.setLineDash([3, 6]);
         ctx.beginPath();
-        ctx.arc(eye.x, eye.y, L.hitR, 0, 6.283);
+        ctx.arc(eye.x, eye.y, hr, 0, 6.283);
         ctx.stroke();
         ctx.setLineDash([]);
         ctx.restore();
-        if (near) SV.fx.glow(ctx, eye.x, eye.y, L.hitR * 1.6, pal.teal, 0.14);
+        SV.fx.glow(ctx, eye.x, eye.y, L.hitR * (0.7 + this.open * 0.9), pal.goldHi, 0.03 + this.open * 0.12);
+        if (near) SV.fx.glow(ctx, eye.x, eye.y, hr * 1.6, pal.teal, 0.14);
       }
 
       // steam
@@ -413,13 +606,41 @@
 
       this.sparks.draw(ctx, pal);
 
-      // reticle
+      // wind gauge
+      this.drawWind(ctx, w, h, time, pal);
+
+      // reticle, draw ring and wind-carried landing mark
       if (!this.done && !this.failed) {
-        art.reticle(ctx, this.reticle.x, this.reticle.y, U.clamp(Math.min(w, h) * 0.028, 15, 24), time, {
+        const a = this.aimPoint();
+        const lp = this.landPoint(w, h);
+        const rr = U.clamp(Math.min(w, h) * 0.028, 15, 24);
+        const pk = this.d.predict;
+        if (pk > 0 && Math.abs(lp.x - a.x) > 3) {
+          ctx.save();
+          ctx.globalAlpha = pk;
+          ctx.strokeStyle = pal.goldHi;
+          ctx.lineWidth = 1.2;
+          ctx.setLineDash([2, 4]);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(lp.x, lp.y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.moveTo(lp.x, lp.y - 6);
+          ctx.lineTo(lp.x + 6, lp.y);
+          ctx.lineTo(lp.x, lp.y + 6);
+          ctx.lineTo(lp.x - 6, lp.y);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.restore();
+        }
+        art.reticle(ctx, a.x, a.y, rr, time, {
           color: pal.teal,
-          locked: U.dist(this.reticle.x, this.reticle.y, eye.x, eye.y) < L.hitR,
-          danger: this.arrowsLeft <= 1,
+          locked: U.dist(lp.x, lp.y, eye.x, eye.y) < this.hitRadius(L),
+          danger: this.arrowsLeft <= 1 || (this.drawing && this.draw > this.d.sweet[1]),
         });
+        if (this.drawing) this.drawRing(ctx, a.x, a.y, rr + 17, pal);
       }
 
       // success
